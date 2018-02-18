@@ -7,7 +7,11 @@ module.exports = db => async items => {
             {data: item.data},
             {$set: item},
             {upsert: true},
-        );
+        ).then(result => ({
+            modified: !!result.result.nModified,
+            upserted: !!result.result.upserted,
+            collection,
+        }));
     });
     return Promise.all(items);
 };
