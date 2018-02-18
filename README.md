@@ -1,6 +1,6 @@
 # monscr
 
-monscr description here
+Mongo wraper for saving scraped data
 
 [![Build Status][travis-image]][travis-url]
 [![NPM version][npm-image]][npm-url]
@@ -14,7 +14,21 @@ npm i monscr
 ## Usage
 
 ```js
-const monscr = require('monscr');
+const mongo = require('mongodb').MongoClient;
+const mongoString = process.env.MONGO_URI;
+const db = mongo.connect(mongoString);
+
+const save = require('monscr')(db);
+
+save([
+    { // will be saved to 'data' collection
+        data: 123,
+    },
+    { // will be saved to 'errors' collection
+        data: 456,
+        errors: ['Invalid data "456"'],
+    },
+]).then(() => console.log('Saved!'))
 ```
 
 ## License
