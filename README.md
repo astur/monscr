@@ -1,6 +1,6 @@
 # monscr
 
-Mongo wraper for saving scraped data
+Mongo wrapper for saving scraped data
 
 [![Build Status][travis-image]][travis-url]
 [![NPM version][npm-image]][npm-url]

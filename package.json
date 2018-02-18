@@ -1,7 +1,7 @@
 {
   "name": "monscr",
   "version": "0.0.1",
-  "description": "Mongo wraper for saving scraped data",
+  "description": "Mongo wrapper for saving scraped data",
   "main": "index.js",
   "author": "astur <astur@yandex.ru> (http://kozlov.am/)",
   "scripts": {
