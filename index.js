@@ -11,7 +11,7 @@ module.exports = (db, {
     })();
     return async items => {
         const _db = await db;
-        items = Array.isArray(items) ? items : [items];
+        items = Array.isArray(items) ? items : [null, undefined].includes(items) ? [] : [items];
         items = items.map(item => {
             const collection = item.errors ? errors : valid;
             return _db.collection(collection).update(
