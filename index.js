@@ -3,6 +3,7 @@ module.exports = (db, {
     errors = 'errors',
     index = 'id',
     cleanErrors = false,
+    check = item => !('errors' in item),
 } = {}) => {
     db = (async () => {
         const _db = await db;
@@ -17,7 +18,7 @@ module.exports = (db, {
         const _db = await db;
         items = Array.isArray(items) ? items : [null, undefined].includes(items) ? [] : [items];
         items = items.map(item => {
-            const collection = item.errors ? errors : valid;
+            const collection = check(item) ? valid : errors;
             return _db.collection(collection).update(
                 {[index]: item[index]},
                 {$set: item},
