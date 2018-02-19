@@ -2,9 +2,13 @@ module.exports = (db, {
     valid = 'data',
     errors = 'errors',
     index = 'id',
+    cleanErrors = false,
 } = {}) => {
     db = (async () => {
         const _db = await db;
+        if(cleanErrors){
+            await _db.dropCollection(errors);
+        }
         const makeIndexes = v => _db.collection(v).createIndex({[index]: 1}, {unique: true});
         await Promise.all([valid, errors].map(makeIndexes));
         return _db;
