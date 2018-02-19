@@ -1,17 +1,21 @@
-module.exports = db => {
+module.exports = (db, {
+    valid = 'data',
+    errors = 'errors',
+    index = 'id',
+} = {}) => {
     db = (async () => {
         const _db = await db;
-        const makeIndexes = v => _db.collection(v).createIndex({data: 1}, {unique: true});
-        await Promise.all(['data', 'errors'].map(makeIndexes));
+        const makeIndexes = v => _db.collection(v).createIndex({[index]: 1}, {unique: true});
+        await Promise.all([valid, errors].map(makeIndexes));
         return _db;
     })();
     return async items => {
         const _db = await db;
         items = Array.isArray(items) ? items : [items];
         items = items.map(item => {
-            const collection = item.errors ? 'errors' : 'data';
+            const collection = item.errors ? errors : valid;
             return _db.collection(collection).update(
-                {data: item.data},
+                {[index]: item[index]},
                 {$set: item},
                 {upsert: true},
             ).then(result => ({
