@@ -45,10 +45,10 @@ const save = require('monscr')(db);
 
 save([
     { // will be saved to 'data' collection
-        data: 123,
+        id: 123,
     },
     { // will be saved to 'errors' collection
-        data: 456,
+        id: 456,
         errors: ['Invalid data "456"'],
     },
 ]).then(() => console.log('Saved!'))
