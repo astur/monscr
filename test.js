@@ -47,11 +47,29 @@ test.serial('options', async t => {
     t.is((await db.collection('bad').find({idx: 123}).toArray())[0].data, 'ok');
 });
 
+test.serial('multi index', async t => {
+    const db = await DB;
+    await db.collection('mi.data').remove({});
+    await db.collection('mi.errors').remove({});
+    const save = monscr(DB, {
+        valid: 'mi.data',
+        errors: 'mi.errors',
+        index: ['a', 'b'],
+    });
+    await save([{a: 0, b: 10}, {a: 1, b: 11, errors: true}]);
+    t.is(await db.collection('mi.data').count(), 1);
+    t.is(await db.collection('mi.errors').count(), 1);
+    t.is((await db.collection('mi.data').find({a: 0}).toArray())[0].b, 10);
+    t.is((await db.collection('mi.errors').find({b: 11}).toArray())[0].a, 1);
+});
+
 test.after(async t => {
     const db = await DB;
     await db.dropCollection('data');
     await db.dropCollection('errors');
     await db.dropCollection('good');
     await db.dropCollection('bad');
+    await db.dropCollection('mi.data');
+    await db.dropCollection('mi.errors');
     await db.close();
 });
