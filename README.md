@@ -19,7 +19,9 @@ Makes async function for easy save scraped record to mongo database. That functi
 const save = require('monscr')(db);
 ```
 
-Some options are available in `monscr`. They defaults to this:
+Only required parameter is `db`. It may be mongo database object or promise resolving to mongo database object.
+
+Some options are available in `monscr` via second optional parameter. They defaults to this:
 
 ```js
 const save = require('monscr')(db, {
