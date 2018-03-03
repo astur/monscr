@@ -10,7 +10,7 @@ module.exports = (db, {
     db = (async () => {
         const _db = await db;
         if(cleanErrors){
-            await _db.dropCollection(errors);
+            await _db.dropCollection(errors).catch(e => {});
         }
         const idx = index.reduce((r, v) => {
             r[v] = 1;
