@@ -34,7 +34,7 @@ const save = require('monscr')(db, {
 });
 ```
 
-Function `save` takes single record or array of records and returns statistics
+Function `save` takes single record or array of records and returns object with statistics.
 
 ## Example
 
@@ -54,6 +54,25 @@ save([
         errors: ['Invalid data "456"'],
     },
 ]).then(() => console.log('Saved!'))
+
+save([
+    {id: 1, a: 0}, //inserted
+    {id: 2, a: 0}, //inserted
+    {id: 3, a: 0}, //inserted
+    {id: 3, a: 1}, //modified
+    {id: 3, a: 2}, //modified
+    {id: 3, a: 2}, //duplicated
+    {id: 100, errors: true},
+    {id: 100, errors: true},
+    {id: 200, errors: true},
+    {id: 200, errors: 1},
+]).then(console.log);
+// {
+//     inserted: 3,
+//     modified: 2,
+//     duplicated: 1,
+//     errors: 4,
+// }
 ```
 
 ## License
