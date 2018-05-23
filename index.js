@@ -39,6 +39,16 @@ module.exports = (db, {
                 collection,
             }));
         });
-        return Promise.all(items);
+        return Promise.all(items).then(items => items.reduce((r, v) => {
+            const field = v.collection === 'errors' ? 'errors' :
+                ['duplicated', 'inserted', 'modified'][+v.modified * 2 + +v.upserted];
+            r[field]++;
+            return r;
+        }, {
+            inserted: 0,
+            modified: 0,
+            duplicated: 0,
+            errors: 0,
+        }));
     };
 };
