@@ -63,6 +63,32 @@ test.serial('multi index', async t => {
     t.is((await db.collection('mi.errors').find({b: 11}).toArray())[0].a, 1);
 });
 
+test.serial('stats', async t => {
+    const db = await DB;
+    await db.collection('data').remove({});
+    await db.collection('errors').remove({});
+    const save = monscr(DB);
+    const stats = await save([
+        {id: 1, a: 0},
+        {id: 2, a: 0},
+        {id: 3, a: 0},
+        {id: 1, a: 0},
+        {id: 1, a: 1},
+        {id: 1, a: 2},
+        {id: 100, errors: true},
+        {id: 200, errors: true},
+        {id: 200, errors: true},
+    ]);
+    console.log(stats);
+    t.is(typeof stats, 'object');
+    t.deepEqual(stats, {
+        inserted: 3,
+        modified: 2,
+        duplicated: 1,
+        errors: 3,
+    });
+});
+
 test.after(async t => {
     const db = await DB;
     await db.dropCollection('data');
