@@ -5,22 +5,21 @@ const mongo = require('mongodb').MongoClient;
 const mongoString = process.env.MONGO_URI ||
     'mongodb://localhost:27017/test';
 
-const DB = mongo.connect(mongoString)
-    .then(client => {
-        const db = client.db(mongoString.split('/').pop());
-        db.close = client.close.bind(client);
-        return db;
-    });
-    // .catch(e => {
-    //     console.log(e.message);
-    //     process.exit(1);
-    // });
+let db;
+
+test.before(async t => {
+    db = await mongo.connect(mongoString)
+        .then(client => {
+            const db = client.db(mongoString.split('/').pop());
+            db.close = client.close.bind(client);
+            return db;
+        });
+});
 
 test.serial('default', async t => {
-    const db = await DB;
     await db.collection('data').remove({});
     await db.collection('errors').remove({});
-    const save = monscr(DB);
+    const save = monscr(db);
     await save([{id: 123, data: 'ok'}, {id: 456, errors: true}]);
     t.is(await db.collection('data').count(), 1);
     t.is(await db.collection('errors').count(), 1);
@@ -28,11 +27,10 @@ test.serial('default', async t => {
 });
 
 test.serial('options', async t => {
-    const db = await DB;
     await db.collection('good').remove({});
     await db.collection('bad').remove({});
     await db.collection('bad').insert({idx: -1, data: 'garbage'});
-    const save = monscr(DB, {
+    const save = monscr(db, {
         valid: 'good',
         errors: 'bad',
         index: 'idx',
@@ -48,10 +46,9 @@ test.serial('options', async t => {
 });
 
 test.serial('multi index', async t => {
-    const db = await DB;
     await db.collection('mi.data').remove({});
     await db.collection('mi.errors').remove({});
-    const save = monscr(DB, {
+    const save = monscr(db, {
         valid: 'mi.data',
         errors: 'mi.errors',
         index: ['a', 'b'],
@@ -64,10 +61,9 @@ test.serial('multi index', async t => {
 });
 
 test.serial('stats', async t => {
-    const db = await DB;
     await db.collection('data').remove({});
     await db.collection('errors').remove({});
-    const save = monscr(DB);
+    const save = monscr(db);
     const stats = await save([
         {id: 1, a: 0},
         {id: 2, a: 0},
@@ -89,7 +85,6 @@ test.serial('stats', async t => {
 });
 
 test.after(async t => {
-    const db = await DB;
     await db.dropCollection('data');
     await db.dropCollection('errors');
     await db.dropCollection('good');
