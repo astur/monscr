@@ -10,11 +10,11 @@ const DB = mongo.connect(mongoString)
         const db = client.db(mongoString.split('/').pop());
         db.close = client.close.bind(client);
         return db;
-    })
-    .catch(e => {
-        console.log(e.message);
-        process.exit(1);
     });
+    // .catch(e => {
+    //     console.log(e.message);
+    //     process.exit(1);
+    // });
 
 test.serial('default', async t => {
     const db = await DB;
@@ -79,7 +79,6 @@ test.serial('stats', async t => {
         {id: 200, errors: true},
         {id: 200, errors: true},
     ]);
-    console.log(stats);
     t.is(typeof stats, 'object');
     t.deepEqual(stats, {
         inserted: 3,
