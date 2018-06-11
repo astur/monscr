@@ -20,7 +20,9 @@ test.serial('default', async t => {
     await db.collection('data').remove({});
     await db.collection('errors').remove({});
     const save = monscr(db);
-    await save([{id: 123, data: 'ok'}, {id: 456, errors: true}]);
+    await save({id: 123, data: 'ok'});
+    await save({id: 456, errors: true});
+    await save();
     t.is(await db.collection('data').count(), 1);
     t.is(await db.collection('errors').count(), 1);
     t.is((await db.collection('data').findOne({id: 123})).data, 'ok');
