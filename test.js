@@ -31,20 +31,22 @@ test.serial('default', async t => {
 test.serial('options', async t => {
     await db.collection('good').remove({});
     await db.collection('bad').remove({});
-    await db.collection('bad').insert({idx: -1, data: 'garbage'});
+    await db.collection('good').insert({idx: -1, data: 'sample'});
+    await db.collection('bad').insert({idx: -2, data: 'garbage'});
     const save = monscr(db, {
         valid: 'good',
         errors: 'bad',
         index: 'idx',
         cleanErrors: true,
+        cleanValid: true,
         check: item => item.idx < 100,
     });
-    await save([{idx: 99}, {idx: 1}]);
-    t.is(await db.collection('good').count(), 2);
-    t.is(await db.collection('bad').count(), 0);
-    await save([{idx: 123, data: 'ok'}, {idx: 456}]);
+    await save([{idx: 99, data: 'ok'}, {idx: 1}]);
+    await save([{idx: 123, data: 'not ok'}, {idx: 456}]);
     t.is(await db.collection('bad').count(), 2);
-    t.is((await db.collection('bad').find({idx: 123}).toArray())[0].data, 'ok');
+    t.is((await db.collection('bad').find({idx: 123}).toArray())[0].data, 'not ok');
+    t.is(await db.collection('good').count(), 2);
+    t.is((await db.collection('good').find({idx: 99}).toArray())[0].data, 'ok');
 });
 
 test.serial('multi index', async t => {
