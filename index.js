@@ -3,15 +3,15 @@ module.exports = (db, {
     errors = 'errors',
     index = 'id',
     cleanErrors = false,
+    cleanValid = false,
     check = item => !('errors' in item),
 } = {}) => {
     const arfy = v => Array.isArray(v) ? v : [null, undefined].includes(v) ? [] : [v];
     index = arfy(index);
     db = (async () => {
         const _db = await db;
-        if(cleanErrors){
-            await _db.dropCollection(errors).catch(e => {});
-        }
+        if(cleanErrors) await _db.dropCollection(errors).catch(e => {});
+        if(cleanValid) await _db.dropCollection(valid).catch(e => {});
         const idx = index.reduce((r, v) => {
             r[v] = 1;
             return r;
