@@ -28,7 +28,26 @@ test.serial('default', async t => {
     t.is((await db.collection('data').findOne({id: 123})).data, 'ok');
 });
 
-test.serial('options', async t => {
+test.serial('options empty', async t => {
+    await db.collection('good').remove({});
+    await db.collection('bad').remove({});
+    const save = monscr(db, {
+        valid: 'good',
+        errors: 'bad',
+        index: 'idx',
+        cleanErrors: true,
+        cleanValid: true,
+        check: item => item.idx < 100,
+    });
+    await save([{idx: 99, data: 'ok'}, {idx: 1}]);
+    await save([{idx: 123, data: 'not ok'}, {idx: 456}]);
+    t.is(await db.collection('bad').count(), 2);
+    t.is((await db.collection('bad').find({idx: 123}).toArray())[0].data, 'not ok');
+    t.is(await db.collection('good').count(), 2);
+    t.is((await db.collection('good').find({idx: 99}).toArray())[0].data, 'ok');
+});
+
+test.serial('options not empty', async t => {
     await db.collection('good').remove({});
     await db.collection('bad').remove({});
     await db.collection('good').insert({idx: -1, data: 'sample'});
