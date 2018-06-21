@@ -28,7 +28,8 @@ const save = require('monscr')(db, {
     valid = 'data',       // name of collection for "good" records
     errors = 'errors',    // name of collection for "bad" records
     index = 'id',         // name of field for unique index (or array of names for multi-field)
-    cleanErrors = false,  // if true - drops "bad" collection
+    cleanErrors = false,  // if true - drops "bad" collection on start
+    cleanValid = false,   // if true - drops "good" collection on start
     check = item =>       // function for check if record are "good" or not
         !('errors' in item),
 });
