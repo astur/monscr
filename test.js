@@ -84,9 +84,12 @@ test.serial('multi index', async t => {
 });
 
 test.serial('stats', async t => {
-    await db.collection('data').remove({});
-    await db.collection('errors').remove({});
-    const save = monscr(db);
+    await db.collection('yes').remove({});
+    await db.collection('no').remove({});
+    const save = monscr(db, {
+        valid: 'yes',
+        errors: 'no',
+    });
     const stats = await save([
         {id: 1, a: 0},
         {id: 2, a: 0},
@@ -110,6 +113,8 @@ test.serial('stats', async t => {
 test.after(async t => {
     await db.dropCollection('data');
     await db.dropCollection('errors');
+    await db.dropCollection('yes');
+    await db.dropCollection('no');
     await db.dropCollection('good');
     await db.dropCollection('bad');
     await db.dropCollection('mi.data');
