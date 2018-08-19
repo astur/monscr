@@ -1,4 +1,4 @@
-module.exports = (db, {
+module.exports = (DB, {
     valid = 'data',
     errors = 'errors',
     index = 'id',
@@ -7,25 +7,23 @@ module.exports = (db, {
     check = item => !('errors' in item),
 } = {}) => {
     const arfy = v => Array.isArray(v) ? v : [null, undefined].includes(v) ? [] : [v];
-    index = arfy(index);
-    db = (async () => {
-        const _db = await db;
-        if(cleanErrors) await _db.dropCollection(errors).catch(e => {});
-        if(cleanValid) await _db.dropCollection(valid).catch(e => {});
-        const idx = index.reduce((r, v) => {
+    const idx = arfy(index);
+    const db = (async () => {
+        const _db = await DB;
+        if(cleanErrors) await _db.dropCollection(errors).catch(e => null);
+        if(cleanValid) await _db.dropCollection(valid).catch(e => null);
+        const makeIndexes = v => _db.collection(v).createIndex(idx.reduce((r, v) => {
             r[v] = 1;
             return r;
-        }, {});
-        const makeIndexes = v => _db.collection(v).createIndex(idx, {unique: true});
+        }, {}), {unique: true});
         await Promise.all([valid, errors].map(makeIndexes));
         return _db;
     })();
     return async items => {
         const _db = await db;
-        items = arfy(items);
-        items = items.map(item => {
+        const prepared = arfy(items).map(item => {
             const collection = check(item) ? valid : errors;
-            const query = index.reduce((r, v) => {
+            const query = idx.reduce((r, v) => {
                 r[v] = item[v];
                 return r;
             }, {});
@@ -39,7 +37,7 @@ module.exports = (db, {
                 collection,
             }));
         });
-        return Promise.all(items).then(items => items.reduce((r, v) => {
+        return Promise.all(prepared).then(items => items.reduce((r, v) => {
             const field = v.collection === valid ?
                 ['duplicated', 'inserted', 'modified'][+v.modified * 2 + +v.upserted] : 'errors';
             r[field]++;
