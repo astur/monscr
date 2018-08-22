@@ -27,7 +27,7 @@ module.exports = (DB, {
                 r[v] = item[v];
                 return r;
             }, {});
-            return _db.collection(collection).update(
+            return _db.collection(collection).updateOne(
                 query,
                 {$set: item},
                 {upsert: true},
