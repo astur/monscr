@@ -30,6 +30,8 @@ const save = require('monscr')(db, {
     index = 'id',         // name of field for unique index (or array of names for multi-field)
     cleanErrors = false,  // if true - drops "bad" collection on start
     cleanValid = false,   // if true - drops "good" collection on start
+    onInsert = null,      // name of field for set only on insert, not update (or array of names)
+    updateCounter = null, // name of field for incremental counter of updates (will be added to item)
     check = item =>       // function for check if record are "good" or not
         !('errors' in item),
 });
