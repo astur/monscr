@@ -5,6 +5,7 @@ module.exports = (DB, {
     cleanErrors = false,
     cleanValid = false,
     onInsert = null,
+    updateCounter = null,
     check = item => !('errors' in item),
 } = {}) => {
     const arfy = v => Array.isArray(v) ? v : [null, undefined].includes(v) ? [] : [v];
@@ -41,6 +42,9 @@ module.exports = (DB, {
                 onIns.forEach(v => {
                     update.$setOnInsert[v] = item[v];
                 });
+            }
+            if(typeof updateCounter === 'string'){
+                update.$inc = {[updateCounter]: 1};
             }
             return _db.collection(collection).updateOne(
                 query,
