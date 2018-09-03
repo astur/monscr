@@ -83,6 +83,15 @@ test.serial('multi index', async t => {
     t.is((await db.collection('mi.errors').find({b: 11}).toArray())[0].a, 1);
 });
 
+test.serial('onInsert', async t => {
+    await db.collection('data').deleteMany({});
+    await db.collection('errors').deleteMany({});
+    const save = monscr(db, {onInsert: ['start']});
+    await save({id: 123, start: 'first'});
+    await save({id: 123, start: 'second'});
+    t.is((await db.collection('data').findOne({id: 123})).start, 'first');
+});
+
 test.serial('stats', async t => {
     await db.collection('yes').deleteMany({});
     await db.collection('no').deleteMany({});
