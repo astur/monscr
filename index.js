@@ -4,10 +4,12 @@ module.exports = (DB, {
     index = 'id',
     cleanErrors = false,
     cleanValid = false,
+    onInsert = null,
     check = item => !('errors' in item),
 } = {}) => {
     const arfy = v => Array.isArray(v) ? v : [null, undefined].includes(v) ? [] : [v];
     const idx = arfy(index);
+    const onIns = arfy(onInsert);
     const db = (async () => {
         const _db = await DB;
         if(cleanErrors) await _db.dropCollection(errors).catch(e => null);
@@ -27,9 +29,22 @@ module.exports = (DB, {
                 r[v] = item[v];
                 return r;
             }, {});
+            const set = Object.keys(item).reduce((r, v) => {
+                if(!onIns.includes(v)){
+                    r[v] = item[v];
+                }
+                return r;
+            }, {});
+            const update = {$set: set};
+            if(onIns.length > 0){
+                update.$setOnInsert = {};
+                onIns.forEach(v => {
+                    update.$setOnInsert[v] = item[v];
+                });
+            }
             return _db.collection(collection).updateOne(
                 query,
-                {$set: item},
+                update,
                 {upsert: true},
             ).then(result => ({
                 modified: !!result.result.nModified,
