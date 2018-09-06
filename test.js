@@ -108,8 +108,10 @@ test.serial('onUpdate/onInsert', async t => {
     const save = monscr(db, {onUpdate: 'a', onInsert: 'b'});
     await save({id: 123, a: 1, b: 1, c: 1});
     await save({id: 123, a: 2, b: 2, c: 2});
-    const result = await db.collection('data').findOne({id: 123}, {a: 1, b: 1, c: 1});
-    t.deepEqual(result, {a: 2, b: 1});
+    const result = await db.collection('data').findOne({id: 123});
+    t.is(result.a, 2);
+    t.is(result.b, 1);
+    t.is(result.c, undefined);
 });
 
 test.serial('updateCounter', async t => {
