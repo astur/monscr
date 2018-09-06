@@ -5,12 +5,14 @@ module.exports = (DB, {
     cleanErrors = false,
     cleanValid = false,
     onInsert = null,
+    onUpdate = null,
     updateCounter = null,
     check = item => !('errors' in item),
 } = {}) => {
     const arfy = v => Array.isArray(v) ? v : [null, undefined].includes(v) ? [] : [v];
     const idx = arfy(index);
     const onIns = arfy(onInsert);
+    const onUpd = arfy(onUpdate);
     const db = (async () => {
         const _db = await DB;
         if(cleanErrors) await _db.dropCollection(errors).catch(e => null);
@@ -31,17 +33,23 @@ module.exports = (DB, {
                 return r;
             }, {});
             const set = Object.keys(item).reduce((r, v) => {
-                if(!onIns.includes(v)){
+                if(onUpd.length > 0){
+                    if(onUpd.includes(v) || idx.includes(v)){
+                        r[v] = item[v];
+                    }
+                } else if(!onIns.includes(v)){
                     r[v] = item[v];
                 }
                 return r;
             }, {});
             const update = {$set: set};
-            if(onIns.length > 0){
-                update.$setOnInsert = {};
-                onIns.forEach(v => {
-                    update.$setOnInsert[v] = item[v];
-                });
+            if(onIns.length > 0 || onUpd.length > 0){
+                update.$setOnInsert = Object.keys(item).reduce((r, v) => {
+                    if(onIns.includes(v) || onIns.length === 0 && !onUpd.includes(v) && !idx.includes(v)){
+                        r[v] = item[v];
+                    }
+                    return r;
+                }, {});
             }
             if(typeof updateCounter === 'string'){
                 update.$inc = {[updateCounter]: 1};
