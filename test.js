@@ -92,6 +92,16 @@ test.serial('onInsert', async t => {
     t.is((await db.collection('data').findOne({id: 123})).start, 'first');
 });
 
+test.serial('onUpdate', async t => {
+    await db.collection('data').deleteMany({});
+    await db.collection('errors').deleteMany({});
+    const save = monscr(db, {onUpdate: ['data']});
+    await save({id: 123, start: 'first', data: 'first'});
+    await save({id: 123, start: 'second', data: 'second'});
+    t.is((await db.collection('data').findOne({id: 123})).start, 'first');
+    t.is((await db.collection('data').findOne({id: 123})).data, 'second');
+});
+
 test.serial('updateCounter', async t => {
     await db.collection('data').deleteMany({});
     await db.collection('errors').deleteMany({});
