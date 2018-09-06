@@ -100,6 +100,7 @@ test.serial('updateCounter', async t => {
     await save({id: 123, data: 'something'});
     await save({id: 123});
     t.is((await db.collection('data').findOne({id: 123})).uCount, 3);
+    t.is((await db.collection('data').findOne({id: 123})).data, 'something');
 });
 
 test.serial('stats', async t => {
